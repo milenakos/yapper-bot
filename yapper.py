@@ -13,7 +13,7 @@ bot = commands.AutoShardedBot(
 
 try:
     with open("yapping.json", "rb") as f:
-        yapping_channels = orjson.loads(f.read())
+        yapping_channels = list(set(orjson.loads(f.read())))
 except FileNotFoundError:
     yapping_channels = []
 
@@ -33,14 +33,14 @@ def save():
 @bot.tree.command(description="Make the bot track a channel as a yapping channel")
 @discord.app_commands.default_permissions(manage_channels=True)
 async def addyappingchannel(message, channel: discord.ForumChannel):
-    yapping_channels.append(channel.id)
+    yapping_channels[:] = list(set(yapping_channels + [channel.id]))
     save()
     await message.response.send_message(f"<#{channel.id}> is now a yapping channel!")
 
 @bot.tree.command(description="Make the bot no longer track a channel as a yapping channel")
 @discord.app_commands.default_permissions(manage_channels=True)
 async def removeyappingchannel(message, channel: discord.ForumChannel):
-    yapping_channels.remove(channel.id)
+    yapping_channels[:] = list(set(yapping_channels) - {channel.id})
     save()
     await message.response.send_message(f"<#{channel.id}> is no longer a yapping channel!")
 
